@@ -1,6 +1,7 @@
 import cv2
 from mtcnn.mtcnn import MTCNN
 import os, os.path
+import imutils
 
 
 
@@ -22,13 +23,16 @@ class detectface():
                     for Nguoi in ket_qua:
                         face_box = Nguoi['box']
 
+
+
+                        roi_ = frame[face_box[1]:face_box[1]+face_box[3], face_box[0]:face_box[0]+face_box[2]]
+                        roi_Resize = imutils.resize(roi_, width=160, height= 160)
+                        img_label = "imgFace" + str(count) + ".png"
+                        cv2.imwrite( "imageFace/"+ img_label, roi_Resize)
+
                         cv2.rectangle(frame,(face_box[0], face_box[1]),
                                       (face_box[0]+face_box[2], face_box[1] + face_box[3]),
                                       (0,255,0), 2)
-
-                        roi_color = frame[face_box[1]:face_box[1]+face_box[3], face_box[0]:face_box[0]+face_box[2]]
-                        img_label = "imgFace" + str(count) + ".png"
-                        cv2.imwrite( "imageFace/"+ img_label, roi_color)
                     
                 cv2.imshow('frame',frame)
                 count = count + 1

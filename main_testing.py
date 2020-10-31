@@ -8,7 +8,7 @@ vi = load_video('videos/video22.mp4')
 de = detectface()
 
 #Module_1
-vi.show()
+#vi.show()
 
 #Module_2
-#de.run()
+de.run()
