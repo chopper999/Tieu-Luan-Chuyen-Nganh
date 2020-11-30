@@ -5,13 +5,10 @@ import argparse
 import pickle
 
 class training():
-	def	__init__(self, path):
-		self.path = path
-
 
 	def run(self):
 		print("[INFO] loading face embeddings...")
-		data = pickle.loads(open(self.path, "rb").read())
+		data = pickle.loads(open("Data_Traning1/embeddings.pickle", "rb").read())
 
 		print("[INFO] encoding labels...")
 		le = LabelEncoder()
@@ -24,16 +21,16 @@ class training():
 
 
 		#Save training
-		f = open("Data_Traning/recognizer.pickle", "wb")
+		f = open("Data_Traning1/recognizer.pickle", "wb")
 		f.write(pickle.dumps(recognizer))
 		f.close()
 
-		f = open("Data_Traning/le.pickle", "wb")
+		f = open("Data_Traning1/le.pickle", "wb")
 		f.write(pickle.dumps(le))
 		f.close()
 
 		# Doc File Pickle
-		pickle_file = open("Data_Traning/recognizer.pickle", "rb")
+		pickle_file = open("Data_Traning1/recognizer.pickle", "rb")
 		objects = []
 		while True:
 		    try:
@@ -41,4 +38,4 @@ class training():
 		    except EOFError:
 		        break
 		pickle_file.close()
-		print(objects)
+		#print(objects)
