@@ -1,44 +1,27 @@
 import cv2
-from PIL import Image
-import os
-import imutils
+#from PIL import Image
+#import os
+#import imutils
 import numpy as np
 
 from Detect_Face import detectface
+from BoundingBox_Face import boundingbox
 
 class load_video():
 	
-	def	__init__(self, path):
+	def	__init__(self, path, rects):
 		self.path = path
-		#self.cam = cv2.VideoCapture(self.path)
-		#__, self.frame = self.cam.read()
-		#self.cam.release()
+		self.rects = rects
 
 	def	show(self):
-		arr = []
-		
 		cam = cv2.VideoCapture(self.path)
-		de = detectface()
+		#de = detectface()
+		bo = boundingbox()
 
 
 		while True:
 			__, frame = cam.read()
-			#cv2.imshow('frame',self.frame)
-			#img = self.frame
-			#img_item = "frame" + str(i) + ".png"
-			#img = img.astype('float32')
-			#img /= 255.0
-			#arr.append(img)
-			#re.runn(frame)
-            #tr.run()
-
-			de.run(frame)
-
-			# cv2.imwrite( "imageFrame/"+ img_item, self.frame)
-			#if cv2.waitKey(1) &0xFF == ord('q'):
-			#	break
-		
-		cam.release()
-		cv2.destroyAllWindows()
-
+			#de.run(frame)
+			bo.run(frame, self.rects)
+	
 
