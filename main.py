@@ -1,33 +1,27 @@
 import cv2
-#from PIL import Image
-#import os
 import imutils
 import numpy as np
-#from mtcnn.mtcnn import MTCNN
 
-
-from facenet_pytorch import MTCNN
+from facenet_pytorch import MTCNN, InceptionResnetV1
 import torch
 
 
 from Tracking.centroidtracker import CentroidTracker
-from BoundingBox_Face import boundingbox
-from BoundingBox_Face_2 import boundingbox_2
 from BoundingBox_Face_Facenet import boundingbox_facenet
+from Recognizer_FaceNet import recognizer_faceNet
+from Recognizer_FaceNet import classification_knn
+
+from Training_FaceNet import training_faceNet
 
 
 cam = cv2.VideoCapture("videos/video333.mp4")
 ct = CentroidTracker()
-bo = boundingbox()
-bo2 = boundingbox_2()
+
 bo3 = boundingbox_facenet()
+re = recognizer_faceNet()
 
-
-print("loading model : DNN and MTCNN")
-net = cv2.dnn.readNetFromCaffe("Library/deploy.prototxt", "Library/res10_300x300_ssd_iter_140000.caffemodel")
-embedder = cv2.dnn.readNetFromTorch("Library/openface_nn4.small2.v1.t7")
-
-#detector = MTCNN()
+ClassKNN = classification_knn()
+tr = training_faceNet()
 
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -35,13 +29,14 @@ print('Running on device: {}'.format(device))
 
 facenet = MTCNN(keep_all=True, device=device)
 
+mtcnn = MTCNN(margin=14, keep_all=True, factor=0.5, device=device).eval()
+resnet = InceptionResnetV1(pretrained='vggface2',device=device).eval()
+resnet.classify = True
+
 while True:
 	__, frame = cam.read()
 
-	#frame = bo.run(frame, detector, ct)
-	#frame = bo2.run(frame, ct, net)
-	frame = bo3.run(frame, facenet,ct)
-
+	frame = bo3.run(frame, facenet, resnet, mtcnn , ct, re, ClassKNN , tr)
 
 	cv2.imshow('frame',frame)
 	if cv2.waitKey(1) &0xFF == ord('q'):
