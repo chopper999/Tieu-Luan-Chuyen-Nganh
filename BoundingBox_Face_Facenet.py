@@ -3,27 +3,35 @@ import numpy as np
 import cv2
 import pandas as pd
 from PIL import Image, ImageDraw
-#from IPython import display
 import imutils
 
 import os
 
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+
+import itertools
+
+from draw_face import draw_facenet
+
+
 
 class boundingbox_facenet():
 
-    def run(self, frame, facenet, resnet, detector, ct, re, ClassKNN, tr):
+    def run(self, frame, facenet, resnet, detector, ct, re, tr):
         self.frame = frame
         self.facenet = facenet
         self.resnet = resnet
         self.detector = detector
         self.ct = ct
         self.re = re
-        self.ClassKNN = ClassKNN
         self.tr = tr
+
+        draw = draw_facenet()
 
 
         (startX, startY, endX, endY) = (None, None, None, None)
-        #frame = imutils.resize(frame, width=1600)
         frames = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         rects = []
         img_crop = []
@@ -32,82 +40,94 @@ class boundingbox_facenet():
         dataset_path = "./facenet_model/"
         class_id = 0
         names = {}
-        textmodel = []
-        # Detect faces
+        empty = False
+
+        # Detect faces in frame
         boxes, _ = facenet.detect(frames)
         
         try:
-            for box in boxes:
-
-                rects.append(np.array(box.astype("int")))
-                (startX, startY, endX, endY) = box.astype("int")
-
-                cv2.rectangle(frame, (startX, startY), (endX, endY),(0, 255, 0), 1)
-
             for box2 in boxes:
+                rects.append(np.array(box2.astype("int")))
 
-                (startX, startY, endX, endY) = box2.astype("int")
-                roi = frame[startY :endY, startX: endX]
-                roi_Resize = imutils.resize(roi, width=160, height= 160)
+            for box in boxes:               
+                (startX, startY, endX, endY) = box.astype("int")
+                img_face = frame[startY :endY, startX: endX]
+                roi_Resize = imutils.resize(img_face, width=160, height= 160)
                 img_crop.append(roi_Resize)
 
-                faces.extend(self.detector(img_crop))
-
+                #detect embedding in faces
+                faces.extend(detector(img_crop))
+                
         except:
             pass
             
         objects = ct.update(np.array(rects))
 
+
         for f in faces:
            if f is not None:           
                 X.append(re.process_faces(f,resnet))
-                X = np.array(X)
+                X = np.array(X)               
+                #X = X.reshape(3,-1)
                 X = X.transpose(2,0,1).reshape(3,-1)
 
+
         for (name, xxx) in objects.items():
+            textfile = dataset_path + "person" + str(name) + '.npy'
             if X != []:
 
-                if not os.path.exists(dataset_path + "person" + str(name) + '.npy'):
-                    with open(dataset_path + "person" + str(name)+ '.npy', 'wb') as f:
+                if not os.path.exists(textfile):
+                    with open(textfile, 'wb') as f:
                         np.save(f , X)
-                        print ("Dataset saved at : {}".format(dataset_path + "person" + str(name) + '.npy'))
+                        print ("Dataset saved at : {}".format(textfile))
                 else:
-                    with open(dataset_path + "person" + str(name) + '.npy', 'rb') as f:
+                    with open(textfile, 'rb') as f:
                         out = np.load(f,  allow_pickle=True)
                         output = np.concatenate((out,X))
-                      
-                        #Loc du lieu trung lap
 
+                        #Loc du lieu trung lap
+                        output_2 = np.unique(output, axis=0)
                         #out = array_in.reshape((array_in.shape[0], -1)) 
-                        #print(output)
                         
-                    with open(dataset_path + "person" + str(name)+ '.npy', 'wb') as f:
-                        np.save(f , output)
+                    with open(textfile, 'wb') as f:
+                        np.save(f , output_2)
+
 
 
         for fx in os.listdir(dataset_path):
             if fx.endswith('.npy'):
                 names[class_id] = fx[:-4]
+                empty = True
+                class_id += 1
 
-        train_dataset = tr.train_run()
-        #print(train_dataset)
-        
-        for face_sec in X:
-            newtext = ClassKNN.knn(train_dataset, face_sec.flatten())
-            print(int(newtext))
+        sort_res = None
+        if empty == True and class_id > 2:
+            train_dataset = tr.train_run()
 
-            try:
-                for (objectPER, centroid) in objects.items():
-                    #text = "Person {}".format(objectPER)
-                    text = int(newtext)
+            xx, yy = np.array(train_dataset)[:, 1:-1], np.array(train_dataset)[:, -1]
+            X_train, X_test, y_train, y_test = train_test_split(xx, yy, test_size=0.2)
 
-                    cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 1)
-                    cv2.circle(frame, (centroid[0] , centroid[1]), 4, (255, 255, 0), -1)
+            model = KNeighborsClassifier(n_neighbors = 3)
+            model.fit(X_train,y_train)
 
-            except:
-                pass
-    
+            if X != []:
+                response = model.predict(X_test)
+
+                # Xu ly du doan
+                sort_res = np.sort(response)
+                sort_res = [[x, len(list(y))] for x, y in itertools.groupby(sort_res)]
+                sort_res = sorted(sort_res,key=lambda x: x[1])
+                sort_res.reverse()
+                sort_res = np.array(sort_res)
+                print(sort_res)
+                sort_res = sort_res[:,0]
+
+
+                #print("muc do du doan :",metrics.accuracy_score(y_test, response))
+
+        frame = draw.draw_rectangle(frame, boxes)
+        frame = draw.draw_text(frame, boxes,names,sort_res, objects)
+
         return frame
             
 

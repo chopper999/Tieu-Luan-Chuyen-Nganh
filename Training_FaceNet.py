@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+from sklearn.neighbors import KNeighborsClassifier 
+
 
 class training_faceNet():
 	def train_run(self):		
@@ -21,11 +23,10 @@ class training_faceNet():
 		        labels.append(target)
 
 		face_dataset = np.concatenate(face_dataset, axis=0)
-		face_labels = np.concatenate(labels, axis=0).reshape((-1, 1))
-
-
-		#print(face_labels.shape)
+		face_labels = np.concatenate(labels, axis=0).reshape((-1, 1)) 
 		#print(face_dataset.shape)
+		#print(face_labels.shape)  
 
-		trainset = np.concatenate((face_dataset, face_labels), axis=1)
+		trainset = np.concatenate((face_dataset,face_labels ), axis=1)
+		#trainset = np.concatenate(trainset, axis=0)
 		return trainset

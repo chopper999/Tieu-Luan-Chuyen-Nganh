@@ -23,7 +23,10 @@ class recognizer_faceNet():
 
 		return t2
 
-class dis():
+
+		
+
+'''class dis():
 	def distance(self, v1, v2):
 		x = np.sqrt(((v1-v2)**2).sum())
 		return x
@@ -50,5 +53,5 @@ class classification_knn():
 		output = np.unique(labels, return_counts=True)
 		# Find max frequency and corresponding label
 		index = np.argmax(output[1])
-		return output[0][index]
+		return output[0][index]'''
 
