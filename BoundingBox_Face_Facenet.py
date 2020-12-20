@@ -7,9 +7,15 @@ import imutils
 
 import os
 
+#KNN
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
+
+#SVM
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 
 import itertools
 
@@ -102,16 +108,22 @@ class boundingbox_facenet():
 
         sort_res = None
         if empty == True and class_id > 2:
+
             train_dataset = tr.train_run()
+            xx, yy = np.array(train_dataset)[:, 0:-1], np.array(train_dataset)[:, -1]
 
-            xx, yy = np.array(train_dataset)[:, 1:-1], np.array(train_dataset)[:, -1]
-            X_train, X_test, y_train, y_test = train_test_split(xx, yy, test_size=0.2)
+            #X_train, X_test, y_train, y_test = train_test_split(xx, yy, test_size=0.2)
 
-            model = KNeighborsClassifier(n_neighbors = 3)
-            model.fit(X_train,y_train)
+            #model = KNeighborsClassifier(n_neighbors = 3)
+            #model.fit(xx,yy)
+
+
+            clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+            clf.fit(xx, yy)
 
             if X != []:
-                response = model.predict(X_test)
+                #response = model.predict(X)
+                response = clf.predict(X)
 
                 # Xu ly du doan
                 sort_res = np.sort(response)
@@ -119,14 +131,14 @@ class boundingbox_facenet():
                 sort_res = sorted(sort_res,key=lambda x: x[1])
                 sort_res.reverse()
                 sort_res = np.array(sort_res)
-                print(sort_res)
                 sort_res = sort_res[:,0]
 
 
                 #print("muc do du doan :",metrics.accuracy_score(y_test, response))
 
-        frame = draw.draw_rectangle(frame, boxes)
-        frame = draw.draw_text(frame, boxes,names,sort_res, objects)
+        frame = draw.draw_rectangle(frame, boxes , names, sort_res)
+        frame = draw.draw_text_train(frame, boxes , names, sort_res)
+        frame = draw.draw_tracking(frame, boxes, objects)
 
         return frame
             

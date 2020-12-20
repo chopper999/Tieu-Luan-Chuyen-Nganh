@@ -27,6 +27,6 @@ class training_faceNet():
 		#print(face_dataset.shape)
 		#print(face_labels.shape)  
 
-		trainset = np.concatenate((face_dataset,face_labels ), axis=1)
+		trainset = np.concatenate((face_dataset,face_labels), axis=1)
 		#trainset = np.concatenate(trainset, axis=0)
 		return trainset
