@@ -130,7 +130,7 @@ class Process():
 
                 #print("muc do du doan :",metrics.accuracy_score(y_test, response))
 
-        frame = draw.draw_rectangle(frame, boxes , names)
+        frame = draw.draw_rectangle(frame, boxes)
         frame = draw.draw_text_train(frame, boxes , names, sort_res)
         frame = draw.draw_tracking(frame, boxes, objects)
 

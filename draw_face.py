@@ -11,10 +11,9 @@ import os
 
 class draw_facenet():
 
-    def draw_rectangle(self, frame, boxes, names):
+    def draw_rectangle(self, frame, boxes):
         self.frame = frame
         self.boxes = boxes
-        self.names = names
 
         (startX, startY, endX, endY) = (None, None, None, None)
         try:
@@ -52,6 +51,7 @@ class draw_facenet():
         (startX, startY, endX, endY) = (None, None, None, None)
         print(sort_res)
         try:
+            i=-1
             for box in boxes:   
                 (startX, startY, endX, endY) = box.astype("int")                             
                 text = str(names[sort_res[i]])
@@ -59,6 +59,7 @@ class draw_facenet():
                 y = startY -10
                 cv2.putText(frame, text, (x, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+                i += 1
         except:
             pass
         return frame

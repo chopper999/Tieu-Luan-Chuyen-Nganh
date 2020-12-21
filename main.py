@@ -30,6 +30,7 @@ resnet.classify = True
 
 while True:
 	__, frame = cam.read()
+	#frame = imutils.resize(frame, width=680, height= 480)
 
 	frame = bo3.run(frame, facenet, resnet, detector , ct, re , tr)
 
