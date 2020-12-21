@@ -1,9 +1,6 @@
 import numpy as np
 import os
 
-from sklearn.neighbors import KNeighborsClassifier 
-
-
 class training_faceNet():
 	def train_run(self):		
 		face_dataset = []

@@ -4,7 +4,6 @@ import cv2
 import pandas as pd
 from PIL import Image, ImageDraw
 import imutils
-
 import os
 
 #KNN
@@ -18,13 +17,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 import itertools
-
 from draw_face import draw_facenet
 
 
-
-class boundingbox_facenet():
-
+class detect_facenet():
     def run(self, frame, facenet, resnet, detector, ct, re, tr):
         self.frame = frame
         self.facenet = facenet
@@ -35,7 +31,6 @@ class boundingbox_facenet():
         self.tr = tr
 
         draw = draw_facenet()
-
 
         (startX, startY, endX, endY) = (None, None, None, None)
         frames = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -99,7 +94,6 @@ class boundingbox_facenet():
                         np.save(f , output_2)
 
 
-
         for fx in os.listdir(dataset_path):
             if fx.endswith('.npy'):
                 names[class_id] = fx[:-4]
@@ -136,7 +130,7 @@ class boundingbox_facenet():
 
                 #print("muc do du doan :",metrics.accuracy_score(y_test, response))
 
-        frame = draw.draw_rectangle(frame, boxes , names, sort_res)
+        frame = draw.draw_rectangle(frame, boxes , names)
         frame = draw.draw_text_train(frame, boxes , names, sort_res)
         frame = draw.draw_tracking(frame, boxes, objects)
 

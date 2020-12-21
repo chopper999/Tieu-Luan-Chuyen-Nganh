@@ -11,11 +11,10 @@ import os
 
 class draw_facenet():
 
-    def draw_rectangle(self, frame, boxes, names, sort_res):
+    def draw_rectangle(self, frame, boxes, names):
         self.frame = frame
         self.boxes = boxes
         self.names = names
-        self.sort_res = sort_res
 
         (startX, startY, endX, endY) = (None, None, None, None)
         try:
