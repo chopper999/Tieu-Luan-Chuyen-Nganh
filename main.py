@@ -6,7 +6,7 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 import torch
 
 from Tracking.centroidtracker import CentroidTracker
-from Detect_Facenet import detect_facenet
+from Process_Face import Process
 from Recognizer_FaceNet import recognizer_faceNet
 from Training_FaceNet import training_faceNet
 
@@ -14,7 +14,7 @@ from Training_FaceNet import training_faceNet
 cam = cv2.VideoCapture("videos/video333.mp4")
 ct = CentroidTracker()
 
-bo3 = detect_facenet()
+bo3 = Process()
 re = recognizer_faceNet()
 
 tr = training_faceNet()

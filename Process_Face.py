@@ -20,7 +20,7 @@ import itertools
 from draw_face import draw_facenet
 
 
-class detect_facenet():
+class Process():
     def run(self, frame, facenet, resnet, detector, ct, re, tr):
         self.frame = frame
         self.facenet = facenet
