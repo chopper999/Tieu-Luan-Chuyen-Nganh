@@ -15,20 +15,21 @@ from sklearn import metrics
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
 
 import itertools
 from draw_face import draw_facenet
 
 
 class Process():
-    def run(self, frame, facenet, resnet, detector, ct, re, tr):
+    def run(self, frame, facenet, resnet, ct, re, tr, vitrimodel):
         self.frame = frame
         self.facenet = facenet
         self.resnet = resnet
-        self.detector = detector
         self.ct = ct
         self.re = re
         self.tr = tr
+        self.vitrimodel = vitrimodel
 
         draw = draw_facenet()
 
@@ -38,7 +39,7 @@ class Process():
         img_crop = []
         faces = []
         X = []
-        dataset_path = "./facenet_model/"
+        dataset_path = vitrimodel
         class_id = 0
         names = {}
         empty = False
@@ -50,27 +51,29 @@ class Process():
             for box2 in boxes:
                 rects.append(np.array(box2.astype("int")))
 
-            for box in boxes:               
+            for box in boxes:            
                 (startX, startY, endX, endY) = box.astype("int")
                 img_face = frame[startY :endY, startX: endX]
                 roi_Resize = imutils.resize(img_face, width=160, height= 160)
                 img_crop.append(roi_Resize)
 
                 #detect embedding in faces
-                faces.extend(detector(img_crop))
-                
+                faces.extend(facenet(img_crop))
+   
         except:
             pass
             
         objects = ct.update(np.array(rects))
 
-
         for f in faces:
-           if f is not None:           
-                X.append(re.process_faces(f,resnet))
-                X = np.array(X)               
+            if f is not None:
+                X = list(X)
+                X.append((re.process_faces(f,resnet)))
+                X = np.array(X)
                 #X = X.reshape(3,-1)
                 X = X.transpose(2,0,1).reshape(3,-1)
+            else:
+                break
 
 
         for (name, xxx) in objects.items():
@@ -110,15 +113,22 @@ class Process():
 
             #model = KNeighborsClassifier(n_neighbors = 3)
             #model.fit(xx,yy)
+            parameter_candidates = [
+                {'C': [0.001, 0.01, 0.1, 1, 5, 10, 100, 1000], 'kernel': ['linear']},
+            ]
 
+            clf = GridSearchCV(estimator=SVC(), param_grid=parameter_candidates, n_jobs=-1)
 
-            clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+            #clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
             clf.fit(xx, yy)
 
             if X != []:
+                #print(X)
                 #response = model.predict(X)
                 response = clf.predict(X)
+                print(response)
 
+        
                 # Xu ly du doan
                 sort_res = np.sort(response)
                 sort_res = [[x, len(list(y))] for x, y in itertools.groupby(sort_res)]

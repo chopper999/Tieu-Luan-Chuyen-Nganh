@@ -5,7 +5,6 @@ import pandas as pd
 from PIL import Image, ImageDraw
 import imutils
 
-
 import os
 
 
@@ -49,7 +48,6 @@ class draw_facenet():
         self.sort_res = sort_res
 
         (startX, startY, endX, endY) = (None, None, None, None)
-        print(sort_res)
         try:
             i=-1
             for box in boxes:   
