@@ -59,7 +59,7 @@ class CentroidTracker():
 			D = dist.cdist(np.array(objectCentroids), inputCentroids)
 
 			# tìm giá trị min của mỗi hàng và sắp xếp cho index của giá trị min lên đầu hàng
-			rows = D.min(axis=1).argsort()
+			rows = D.min(axis=1).argsort()   #argsort dung de sap xep cac chi muc
 
 			# thực hiện tương tự đối với các cột, sắp xếp dựa trên hàng
 			cols = D.argmin(axis=1)[rows]
